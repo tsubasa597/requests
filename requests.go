@@ -18,7 +18,7 @@ type Requests struct {
 func (r *Requests) Get(url string) ([]byte, error) {
 	var err error
 
-	if nil == r.header {
+	if len(r.header) < 1 {
 		r.header = map[string][]string{
 			"Connection":   {"keep-alive"},
 			"User-Agent":   {"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36 Edg/85.0.564.70"},
@@ -64,7 +64,7 @@ func (r *Requests) Gets(url string, v *interface{}) error {
 func (r *Requests) Post(url string, params url.Values) ([]byte, error) {
 	var err error
 
-	if nil == r.req.Header {
+	if len(r.header) < 1 {
 		r.req.Header = http.Header{
 			"Connection":   []string{"keep-alive"},
 			"User-Agent":   []string{"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36 Edg/85.0.564.70"},
@@ -113,7 +113,8 @@ func (r *Requests) SetHeader(h http.Header) {
 
 func New() *Requests {
 	return &Requests{
-		req: &http.Request{},
-		cli: &http.Client{},
+		req:    &http.Request{},
+		cli:    &http.Client{},
+		header: http.Header{},
 	}
 }
