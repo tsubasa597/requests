@@ -47,7 +47,7 @@ func (r *Requests) Get(url string) ([]byte, error) {
 	return res, err
 }
 
-func (r *Requests) Gets(url string, v *interface{}) error {
+func (r *Requests) Gets(url string, v interface{}) error {
 	resp, err := r.Get(url)
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func (r *Requests) Post(url string, params url.Values) ([]byte, error) {
 	return res, err
 }
 
-func (r *Requests) Posts(url string, params url.Values, v *interface{}) error {
+func (r *Requests) Posts(url string, params url.Values, v interface{}) error {
 	resp, err := r.Post(url, params)
 	if err != nil {
 		return err
