@@ -9,31 +9,27 @@ import (
 	"strings"
 )
 
-type Requests struct {
-	header map[string][]string
-	req    *http.Request
-	cli    *http.Client
-}
+var (
+	Client = &http.Client{}
+	Header = map[string][]string{
+		"Connection":   {"keep-alive"},
+		"User-Agent":   {"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36 Edg/85.0.564.70"},
+		"Content-Type": {"application/x-www-form-urlencoded"},
+	}
+	Cookie = make(map[string][]string)
+)
 
-func (r *Requests) Get(url string) ([]byte, error) {
+func Get(url string) ([]byte, error) {
 	var err error
 
-	if len(r.header) < 1 {
-		r.header = map[string][]string{
-			"Connection":   {"keep-alive"},
-			"User-Agent":   {"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36 Edg/85.0.564.70"},
-			"Content-Type": {"application/x-www-form-urlencoded"},
-		}
-	}
-
-	r.req, err = http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %s", "地址错误", err)
 	}
 
-	r.req.Header = r.header
+	req.Header = Header
 
-	resp, err := r.cli.Do(r.req)
+	resp, err := Client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %s", "请求错误", err)
 	}
@@ -47,8 +43,8 @@ func (r *Requests) Get(url string) ([]byte, error) {
 	return res, err
 }
 
-func (r *Requests) Gets(url string, v interface{}) error {
-	resp, err := r.Get(url)
+func Gets(url string, v interface{}) error {
+	resp, err := Get(url)
 	if err != nil {
 		return err
 	}
@@ -61,25 +57,17 @@ func (r *Requests) Gets(url string, v interface{}) error {
 	return nil
 }
 
-func (r *Requests) Post(url string, params url.Values) ([]byte, error) {
+func Post(url string, params url.Values) ([]byte, error) {
 	var err error
 
-	if len(r.header) < 1 {
-		r.req.Header = http.Header{
-			"Connection":   []string{"keep-alive"},
-			"User-Agent":   []string{"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36 Edg/85.0.564.70"},
-			"Content-Type": []string{"application/x-www-form-urlencoded"},
-		}
-	}
-
-	r.req, err = http.NewRequest("POST", url, strings.NewReader(params.Encode()))
+	req, err := http.NewRequest("POST", url, strings.NewReader(params.Encode()))
 	if err != nil {
 		return nil, fmt.Errorf("%s: %s", "地址错误", err)
 	}
 
-	r.req.Header = r.header
+	req.Header = Header
 
-	resp, err := r.cli.Do(r.req)
+	resp, err := Client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %s", "请求错误", err)
 	}
@@ -93,8 +81,8 @@ func (r *Requests) Post(url string, params url.Values) ([]byte, error) {
 	return res, err
 }
 
-func (r *Requests) Posts(url string, params url.Values, v interface{}) error {
-	resp, err := r.Post(url, params)
+func Posts(url string, params url.Values, v interface{}) error {
+	resp, err := Post(url, params)
 	if err != nil {
 		return err
 	}
@@ -105,16 +93,4 @@ func (r *Requests) Posts(url string, params url.Values, v interface{}) error {
 	}
 
 	return nil
-}
-
-func (r *Requests) SetHeader(h http.Header) {
-	r.header = h
-}
-
-func New() *Requests {
-	return &Requests{
-		req:    &http.Request{},
-		cli:    &http.Client{},
-		header: http.Header{},
-	}
 }
