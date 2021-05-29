@@ -116,14 +116,14 @@ func setHeadersAndCookies(headers, cookies map[string]string, req *http.Request)
 }
 
 func Get(url string) ([]byte, error) {
-	if request.Client == nil {
+	if request == nil {
 		initRequest()
 	}
 	return request.Get(url)
 }
 
 func Post(url string, params url.Values) ([]byte, error) {
-	if request.Client == nil {
+	if request == nil {
 		initRequest()
 	}
 	return request.Post(url, params)
