@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 )
 
 var (
@@ -15,9 +16,8 @@ var (
 		"User-Agent":   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36 Edg/85.0.564.70",
 		"Content-Type": "application/x-www-form-urlencoded",
 	}
-	request = &Requests{
-		Client: &http.Client{},
-	}
+	request *Requests
+	once    = sync.Once{}
 )
 
 type Requests struct {
@@ -116,9 +116,24 @@ func setHeadersAndCookies(headers, cookies map[string]string, req *http.Request)
 }
 
 func Get(url string) ([]byte, error) {
+	if request.Client == nil {
+		initRequest()
+	}
 	return request.Get(url)
 }
 
 func Post(url string, params url.Values) ([]byte, error) {
+	if request.Client == nil {
+		initRequest()
+	}
 	return request.Post(url, params)
+}
+
+func initRequest() {
+	once.Do(func() {
+		request = &Requests{
+			Client:  &http.Client{},
+			Headers: defaultHeaders,
+		}
+	})
 }
