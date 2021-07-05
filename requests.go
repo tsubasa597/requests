@@ -7,8 +7,14 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"sync"
 )
+
+func init() {
+	request = &Requests{
+		Client:  &http.Client{},
+		Headers: defaultHeaders,
+	}
+}
 
 var (
 	defaultHeaders = map[string]string{
@@ -17,7 +23,6 @@ var (
 		"Content-Type": "application/x-www-form-urlencoded",
 	}
 	request *Requests
-	once    = sync.Once{}
 )
 
 type Requests struct {
@@ -116,24 +121,9 @@ func setHeadersAndCookies(headers, cookies map[string]string, req *http.Request)
 }
 
 func Get(url string) ([]byte, error) {
-	if request == nil {
-		initRequest()
-	}
 	return request.Get(url)
 }
 
 func Post(url string, params url.Values) ([]byte, error) {
-	if request == nil {
-		initRequest()
-	}
 	return request.Post(url, params)
-}
-
-func initRequest() {
-	once.Do(func() {
-		request = &Requests{
-			Client:  &http.Client{},
-			Headers: defaultHeaders,
-		}
-	})
 }
