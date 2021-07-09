@@ -59,12 +59,7 @@ func (request Requests) Gets(url string, v interface{}) error {
 		return err
 	}
 
-	err = json.Unmarshal(resp, v)
-	if err != nil {
-		return fmt.Errorf("%s: %s", "解析错误", err)
-	}
-
-	return nil
+	return LoadResponse(resp, v)
 }
 
 func (request Requests) Post(url string, params url.Values) ([]byte, error) {
@@ -95,12 +90,7 @@ func (request Requests) Posts(url string, params url.Values, v interface{}) erro
 		return err
 	}
 
-	err = json.Unmarshal(resp, v)
-	if err != nil {
-		return fmt.Errorf("%s: %s", "解析错误", err)
-	}
-
-	return nil
+	return LoadResponse(resp, v)
 }
 
 func setHeadersAndCookies(headers, cookies map[string]string, req *http.Request) {
@@ -126,4 +116,30 @@ func Get(url string) ([]byte, error) {
 
 func Post(url string, params url.Values) ([]byte, error) {
 	return request.Post(url, params)
+}
+
+func Gets(url string, v interface{}) error {
+	resp, err := Get(url)
+	if err != nil {
+		return err
+	}
+
+	return LoadResponse(resp, v)
+}
+
+func Posts(url string, params url.Values, v interface{}) error {
+	resp, err := request.Post(url, params)
+	if err != nil {
+		return err
+	}
+
+	return LoadResponse(resp, v)
+}
+
+func LoadResponse(body []byte, v interface{}) error {
+	err := json.Unmarshal(body, v)
+	if err != nil {
+		return fmt.Errorf("%s: %s", "解析错误", err)
+	}
+	return nil
 }
